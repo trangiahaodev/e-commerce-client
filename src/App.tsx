@@ -6,8 +6,17 @@ import LoginPage from "./features/auth/pages/LoginPage";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import CatalogPage from "./features/catalog/pages/CatalogPage";
 import HomePage from "./features/home/pages/HomePage";
+import { useAppDispatch } from "./hooks/reduxHooks";
+import { useEffect } from "react";
+import { checkAuthSession } from "./features/auth/store/authSlice";
 
 function App() {
+  const dispatch = useAppDispatch();
+  useEffect(() => {
+    // As soon as the app mounts, check if the browser has a valid session
+    dispatch(checkAuthSession());
+  }, [dispatch]);
+
   return (
     <>
       <ThemeProvider theme={theme}>

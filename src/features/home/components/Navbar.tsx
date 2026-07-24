@@ -1,9 +1,16 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../../hooks/reduxHooks";
 import axiosClient from "../../../utils/axiosClient";
 import { logout } from "../../auth/store/authSlice";
-import { useEffect, useState } from "react";
 import { useToast } from "../../../context/ToastContext";
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Box,
+  Divider,
+  Button,
+} from "@mui/material";
 
 const Navbar = () => {
   // 1. Redux hooks
@@ -36,36 +43,83 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="w-full bg-white shadow-md px-8 py-4 flex justify-between items-center">
-      {/* Logo */}
-      <Link
-        to="/"
-        className="text-2xl font-bold text-orange-600 tracking-tight">
-        GREENHARVEST
-      </Link>
+    <AppBar
+      position="sticky"
+      sx={{ backgroundColor: "white", color: "black", boxShadow: 1 }}>
+      <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
+        {/* Brand */}
+        <Typography
+          variant="h5"
+          component={RouterLink}
+          to="/"
+          sx={{
+            fontWeight: 800,
+            color: "success.dark", // Green harvest theme
+            textDecoration: "none",
+            letterSpacing: "-0.5px",
+            "&:hover": { color: "success.main" },
+          }}>
+          GREEN HARVEST
+        </Typography>
 
-      {/* Auth State Rendering */}
-      <div className="flex items-center space-x-6 text-sm font-medium">
-        {isAuthenticated && user ? (
-          <div className="flex items-center space-x-4">
-            <span className="text-gray-700">
-              Welcome, <span className="font-bold">{user.sub || "User"}</span>
-            </span>
-            <button
-              onClick={handleLogout}
-              className="text-gray-500 hover:text-orange-600 transition-colors">
-              Logout
-            </button>
-          </div>
-        ) : (
-          <Link
-            to="/login"
-            className="text-gray-700 hover:text-orange-600 transition-colors">
-            Login
-          </Link>
-        )}
-      </div>
-    </nav>
+        {/* Navigation & Auth Area */}
+        <Box sx={{ display: "flex", alignItems: "center" }}>
+          {isAuthenticated && user ? (
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                bgcolor: "grey.50",
+                px: 2,
+                py: 0.5,
+                borderRadius: 5,
+                border: "1px solid",
+                borderColor: "grey.200",
+              }}>
+              <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                Welcome,
+                <Box
+                  component="span"
+                  sx={{
+                    fontWeight: "bold",
+                    color: "text.primary",
+                    marginLeft: "4px",
+                  }}>
+                  {user.sub ? user.sub.split("@")[0] : "User"}
+                </Box>
+              </Typography>
+
+              {/* Vertical Divider */}
+              <Divider orientation="vertical" flexItem sx={{ my: 1, mx: 2 }} />
+
+              {/* Logout Button */}
+              <Button
+                size="small"
+                color="error"
+                sx={{ textTransform: "none", fontWeight: "bold" }}
+                onClick={handleLogout}>
+                Logout
+              </Button>
+            </Box>
+          ) : (
+            <Button
+              component={RouterLink}
+              to="/login"
+              variant="contained"
+              color="success"
+              sx={{
+                borderRadius: 5,
+                px: 3,
+                textTransform: "none",
+                fontWeight: "bold",
+                boxShadow: 0,
+              }}>
+              Login
+            </Button>
+          )}
+        </Box>
+      </Toolbar>
+    </AppBar>
   );
 };
 

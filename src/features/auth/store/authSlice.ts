@@ -18,6 +18,19 @@ export const loginUser = createAsyncThunk(
   },
 );
 
+export const checkAuthSession = createAsyncThunk(
+  "auth/checkSession",
+  async (_, thunkAPI) => {
+    try {
+      // This endpoint should read the cookie and return the user's info
+      const response = await axiosClient.get("/auth/me");
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue("No active session");
+    }
+  },
+);
+
 // Get user from cookie (just like get user from local storage)
 // If the user hits refresh (F5), this automatically checks the secure cookie
 // to keep them logged in seamlessly without storing anything in localStorage!
@@ -43,6 +56,7 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      // Login
       .addCase(loginUser.pending, (state) => {
         state.status = "loading";
         state.error = null; // Clear old errors
@@ -61,10 +75,26 @@ const authSlice = createSlice({
           state.error = "Security validation failed on client!";
         }
       })
+
+      // Check session
       .addCase(loginUser.rejected, (state, action) => {
         state.status = "failed";
         state.isAuthenticated = false;
         state.error = action.payload as string; // Set the error message from Spring Boot
+      })
+      .addCase(checkAuthSession.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(checkAuthSession.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.isAuthenticated = true;
+        // Populate the user state from the /auth/me response
+        state.user = action.payload;
+      })
+      .addCase(checkAuthSession.rejected, (state) => {
+        state.status = "idle"; // Reset to idle so the user can log in normally
+        state.isAuthenticated = false;
+        state.user = null;
       });
   },
 });
