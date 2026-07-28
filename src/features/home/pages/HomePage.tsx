@@ -15,6 +15,7 @@ import Navbar from "../components/Navbar";
 import { useAppDispatch, useAppSelector } from "@/hooks/reduxHooks";
 import { useEffect } from "react";
 import { fetchProduct } from "../store/productSlice";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 const HomePage = () => {
   // 1. Redux hooks
@@ -23,11 +24,7 @@ const HomePage = () => {
 
   useEffect(() => {
     if (status === "idle") {
-      try {
-        dispatch(fetchProduct()).unwrap();
-      } catch (error: any) {
-        console.error("Failed to fetch products:", error.message);
-      }
+      dispatch(fetchProduct());
     }
   }, [dispatch, status]);
 
@@ -89,7 +86,9 @@ const HomePage = () => {
         </Box>
 
         <Grid container spacing={4}>
-          {status === "loading" && <CircularProgress color="success" />}
+          {status === "loading" && (
+            <LoadingSpinner message="Harvesting fresh arrivals..." />
+          )}
 
           {status === "failed" && (
             <Typography color="error">{error}</Typography>

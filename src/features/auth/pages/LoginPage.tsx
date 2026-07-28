@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../../../context/ToastContext";
+import { fetchProduct } from "@/features/home/store/productSlice";
 
 const LoginPage = () => {
   // 1. Local UI state for form inputs
@@ -34,7 +35,13 @@ const LoginPage = () => {
     e.preventDefault();
     if (email && password) {
       try {
+        // 1. Await the login. This sets the HttpOnly cookie in the browser.
         await dispatch(loginUser({ email, password })).unwrap();
+
+        // 2. PRE-FETCH: Now that we have the cookie, fetch the products
+        // We use .unwrap() so if this fails,
+        // it gets caught by the catch block below and halts navigation.
+        await dispatch(fetchProduct()).unwrap();
 
         setEmail("");
         setPassword("");
