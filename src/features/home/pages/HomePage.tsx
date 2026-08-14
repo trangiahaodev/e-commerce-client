@@ -1,15 +1,13 @@
 import { Box, Container } from "@mui/material";
 import Navbar from "../components/Navbar";
-import { useAppDispatch } from "@/hooks/reduxHooks";
 import { useEffect, useState } from "react";
-import { fetchProduct } from "../store/productSlice";
 import HeroBanner from "../components/HeroBanner";
 import BentoPromos from "../components/BentoPromos";
-import ProductShowcase from "../components/ProductShowcase";
 import TrustSignals from "../components/TrustSignals";
 import Footer from "../components/Footer";
 import type { Product } from "../types/Product";
 import ProductRow from "../components/ProductRow";
+import { productApi } from "../api/productApi";
 
 const HomePage = () => {
   // Local state to hold the data for each specific curated row
@@ -25,27 +23,19 @@ const HomePage = () => {
       try {
         setIsLoading(true);
 
+        // Fire the Axios requests concurrently
         const [trendingRes, seasonalRes, recommendedRes, topRatedRes] =
           await Promise.all([
-            fetch("http://localhost:8686/api/v1/products/trending"),
-            fetch("http://localhost:8686/api/v1/products/seasonal"),
-            fetch("http://localhost:8686/api/v1/products/recommended"),
-            fetch("http://localhost:8686/api/v1/products/top-rated"),
+            productApi.getTrending(),
+            productApi.getSeasonal(),
+            productApi.getRecommended(),
+            productApi.getTopRated(),
           ]);
 
-        const [trendingData, seasonalData, recommendedData, topRatedData] =
-          await Promise.all([
-            trendingRes.json(),
-            seasonalRes.json(),
-            recommendedRes.json(),
-            topRatedRes.json(),
-          ]);
-
-        // PASS THE DATA DIRECTLY, NO MAPPING REQUIRED
-        setTrending(trendingData);
-        setSeasonal(seasonalData);
-        setRecommended(recommendedData);
-        setTopRated(topRatedData);
+        setTrending(trendingRes.data);
+        setSeasonal(seasonalRes.data);
+        setRecommended(recommendedRes.data);
+        setTopRated(topRatedRes.data);
       } catch (error) {
         console.error("Failed to fetch product rows:", error);
       } finally {

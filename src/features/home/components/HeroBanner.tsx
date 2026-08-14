@@ -1,7 +1,10 @@
 import { Box, Typography, Button, Container } from "@mui/material";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import { useNavigate } from "react-router-dom";
 
 const HeroBanner = () => {
+  const navigate = useNavigate();
+
   return (
     <Box
       sx={{
@@ -13,7 +16,6 @@ const HeroBanner = () => {
         backgroundPosition: "center",
         display: "flex",
         alignItems: "center",
-        // The dark overlay
         "&::before": {
           content: '""',
           position: "absolute",
@@ -26,7 +28,6 @@ const HeroBanner = () => {
       }}>
       <Container maxWidth="lg" sx={{ position: "relative", zIndex: 1 }}>
         <Box sx={{ maxWidth: "600px", color: "white" }}>
-          {/* Trust Marker / Overline */}
           <Typography
             variant="overline"
             sx={{
@@ -39,7 +40,6 @@ const HeroBanner = () => {
             100% Certified Organic
           </Typography>
 
-          {/* Main Headline */}
           <Typography
             variant="h2"
             sx={{
@@ -52,7 +52,6 @@ const HeroBanner = () => {
             The True Taste of Nature.
           </Typography>
 
-          {/* Subheading */}
           <Typography
             variant="h6"
             sx={{
@@ -65,8 +64,8 @@ const HeroBanner = () => {
             your doorstep within 24 hours.
           </Typography>
 
-          {/* CTA Button */}
           <Button
+            onClick={() => navigate("/products?category=seasonal")}
             variant="contained"
             color="success"
             endIcon={<ArrowForwardIcon />}

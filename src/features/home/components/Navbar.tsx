@@ -22,16 +22,13 @@ import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 
 const Navbar = () => {
-  // 1. Redux hooks
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-
-  // 2. Toast
   const { showToast } = useToast();
 
-  // 3. Local state to track the clicked category
   const [activeCategory, setActiveCategory] = useState("SEASONAL");
+  const [searchInput, setSearchInput] = useState("");
 
   const categories = [
     "SEASONAL",
@@ -44,22 +41,33 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-      // 1. Delete browser cookies
       await axiosClient.post("/auth/logout");
-
-      // 2. Delete Redux state
       dispatch(logout());
-
-      // 3. Toast
       showToast("Logout successfully!", "success");
-
-      // 4. Redirect to login page
       setTimeout(() => {
         navigate("/");
       }, 1000);
     } catch (error) {
       console.error("Background logout failed", error);
       showToast("An unexpected error occurred during logout", "error");
+    }
+  };
+
+  const handleCategoryClick = (category: string) => {
+    setActiveCategory(category);
+    // Format category string (e.g., "DAIRY & EGGS" -> "dairy-eggs")
+    const formattedCategory = category
+      .toLowerCase()
+      .replace(/ & /g, "-")
+      .replace(/ /g, "-");
+
+    navigate(`/products?category=${formattedCategory}`);
+  };
+
+  const handleSearchSubmit = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === "Enter" && searchInput.trim() !== "") {
+      navigate(`/products?search=${encodeURIComponent(searchInput.trim())}`);
+      setSearchInput("");
     }
   };
 
@@ -73,12 +81,10 @@ const Navbar = () => {
         borderBottom: "1px solid",
         borderColor: "grey.200",
       }}>
-      {/* Primary Toolbar: Logo, Search, and User Actions */}
       <Container maxWidth="lg">
         <Toolbar
           disableGutters
           sx={{ display: "flex", justifyContent: "space-between", py: 1.5 }}>
-          {/* 1. Brand Logo */}
           <Typography
             variant="h5"
             component={RouterLink}
@@ -94,7 +100,6 @@ const Navbar = () => {
             GREENHARVEST
           </Typography>
 
-          {/* 2. Centered Search Bar */}
           <Box
             sx={{
               flexGrow: 1,
@@ -106,11 +111,14 @@ const Navbar = () => {
               variant="outlined"
               size="small"
               placeholder="Search organic produce..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              onKeyDown={handleSearchSubmit}
               sx={{
                 width: "100%",
                 maxWidth: "500px",
                 "& .MuiOutlinedInput-root": {
-                  borderRadius: "50px", // Pill-shaped search bar
+                  borderRadius: "50px",
                   backgroundColor: "grey.50",
                   "& fieldset": { borderColor: "grey.300" },
                   "&:hover fieldset": { borderColor: "success.main" },
@@ -129,7 +137,6 @@ const Navbar = () => {
             />
           </Box>
 
-          {/* 3. Navigation & Auth Area */}
           <Box
             sx={{
               display: "flex",
@@ -138,7 +145,6 @@ const Navbar = () => {
               minWidth: "200px",
               justifyContent: "flex-end",
             }}>
-            {/* User Account / Login */}
             {isAuthenticated && user ? (
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                 <PersonOutlineOutlinedIcon sx={{ color: "text.secondary" }} />
@@ -173,7 +179,6 @@ const Navbar = () => {
               </Button>
             )}
 
-            {/* Shopping Cart */}
             <IconButton
               sx={{
                 color: "text.primary",
@@ -187,7 +192,6 @@ const Navbar = () => {
         </Toolbar>
       </Container>
 
-      {/* Secondary Toolbar: Categories */}
       <Box
         sx={{
           borderTop: "1px solid",
@@ -208,33 +212,31 @@ const Navbar = () => {
               <Typography
                 key={category}
                 variant="caption"
-                onClick={() => setActiveCategory(category)}
+                onClick={() => handleCategoryClick(category)}
                 sx={{
                   fontWeight: 700,
                   letterSpacing: "0.5px",
                   cursor: "pointer",
                   position: "relative",
-                  py: 1.5, // Padding top and bottom
+                  py: 1.5,
                   color:
                     activeCategory === category
                       ? "success.main"
                       : "text.secondary",
                   transition: "color 0.2s ease-in-out",
                   "&:hover": { color: "success.main" },
-                  // Green line indicator
                   "&::after": {
                     content: '""',
                     position: "absolute",
-                    bottom: 0, // Pins it to the bottom of the padding
+                    bottom: 0,
                     left: 0,
                     height: "2px",
                     backgroundColor: "success.main",
-                    // The line is 100% width if active, or scales up on hover
                     width: activeCategory === category ? "100%" : "0%",
                     transition: "width 0.3s ease-in-out",
                   },
                   "&:hover::after": {
-                    width: "100%", // Shows line on hover before clicking
+                    width: "100%",
                   },
                 }}>
                 {category}

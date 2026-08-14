@@ -61,7 +61,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
       </Typography>
 
       <Typography variant="h6" sx={{ fontWeight: 700, color: "success.dark" }}>
-        {product.basePrice.toLocaleString("vi-VN")} ₫
+        ${product.basePrice}
       </Typography>
     </Box>
   );

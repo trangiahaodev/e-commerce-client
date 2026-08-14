@@ -10,6 +10,7 @@ import { useAppDispatch } from "./hooks/reduxHooks";
 import { useEffect, useState } from "react";
 import { checkAuthSession } from "./features/auth/store/authSlice";
 import LoadingSpinner from "./components/LoadingSpinner";
+import ProductListingPage from "./features/home/pages/ProductListingPage";
 
 function App() {
   // 1. Redux
@@ -51,6 +52,7 @@ function App() {
             <Route index path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/catalog" element={<CatalogPage />} />
+            <Route path="/products" element={<ProductListingPage />} />
 
             {/* Protected Routes */}
             <Route element={<ProtectedRoute />}>
