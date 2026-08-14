@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../../hooks/reduxHooks";
 import axiosClient from "../../../utils/axiosClient";
@@ -8,9 +9,17 @@ import {
   Toolbar,
   Typography,
   Box,
-  Divider,
   Button,
+  Container,
+  TextField,
+  InputAdornment,
+  IconButton,
+  Badge,
 } from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
+import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
+import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
+import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 
 const Navbar = () => {
   // 1. Redux hooks
@@ -20,6 +29,18 @@ const Navbar = () => {
 
   // 2. Toast
   const { showToast } = useToast();
+
+  // 3. Local state to track the clicked category
+  const [activeCategory, setActiveCategory] = useState("SEASONAL");
+
+  const categories = [
+    "SEASONAL",
+    "FRESH FRUITS",
+    "LEAFY GREENS",
+    "ROOT VEGETABLES",
+    "DAIRY & EGGS",
+    "ORGANIC MEAT",
+  ];
 
   const handleLogout = async () => {
     try {
@@ -45,80 +66,183 @@ const Navbar = () => {
   return (
     <AppBar
       position="sticky"
-      sx={{ backgroundColor: "white", color: "black", boxShadow: 1 }}>
-      <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
-        {/* Brand */}
-        <Typography
-          variant="h5"
-          component={RouterLink}
-          to="/"
-          sx={{
-            fontWeight: 800,
-            color: "success.dark", // Green harvest theme
-            textDecoration: "none",
-            letterSpacing: "-0.5px",
-            "&:hover": { color: "success.main" },
-          }}>
-          GREEN HARVEST
-        </Typography>
+      elevation={0}
+      sx={{
+        backgroundColor: "white",
+        color: "black",
+        borderBottom: "1px solid",
+        borderColor: "grey.200",
+      }}>
+      {/* Primary Toolbar: Logo, Search, and User Actions */}
+      <Container maxWidth="lg">
+        <Toolbar
+          disableGutters
+          sx={{ display: "flex", justifyContent: "space-between", py: 1.5 }}>
+          {/* 1. Brand Logo */}
+          <Typography
+            variant="h5"
+            component={RouterLink}
+            onClick={() => navigate("/")}
+            to="/"
+            sx={{
+              fontWeight: 900,
+              color: "success.dark",
+              textDecoration: "none",
+              letterSpacing: "-0.5px",
+              minWidth: "200px",
+            }}>
+            GREENHARVEST
+          </Typography>
 
-        {/* Navigation & Auth Area */}
-        <Box sx={{ display: "flex", alignItems: "center" }}>
-          {isAuthenticated && user ? (
-            <Box
+          {/* 2. Centered Search Bar */}
+          <Box
+            sx={{
+              flexGrow: 1,
+              display: "flex",
+              justifyContent: "center",
+              px: 4,
+            }}>
+            <TextField
+              variant="outlined"
+              size="small"
+              placeholder="Search organic produce..."
               sx={{
-                display: "flex",
-                alignItems: "center",
-                bgcolor: "grey.50",
-                px: 2,
-                py: 0.5,
-                borderRadius: 5,
-                border: "1px solid",
-                borderColor: "grey.200",
-              }}>
-              <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                Welcome,
-                <Box
-                  component="span"
-                  sx={{
-                    fontWeight: "bold",
-                    color: "text.primary",
-                    marginLeft: "4px",
-                  }}>
+                width: "100%",
+                maxWidth: "500px",
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "50px", // Pill-shaped search bar
+                  backgroundColor: "grey.50",
+                  "& fieldset": { borderColor: "grey.300" },
+                  "&:hover fieldset": { borderColor: "success.main" },
+                  "&.Mui-focused fieldset": { borderColor: "success.main" },
+                },
+              }}
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon sx={{ color: "text.secondary" }} />
+                    </InputAdornment>
+                  ),
+                },
+              }}
+            />
+          </Box>
+
+          {/* 3. Navigation & Auth Area */}
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 2,
+              minWidth: "200px",
+              justifyContent: "flex-end",
+            }}>
+            {/* User Account / Login */}
+            {isAuthenticated && user ? (
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <PersonOutlineOutlinedIcon sx={{ color: "text.secondary" }} />
+                <Typography
+                  variant="body2"
+                  sx={{ fontWeight: 600, color: "text.primary" }}>
                   {user.sub ? user.sub.split("@")[0] : "User"}
-                </Box>
-              </Typography>
-
-              {/* Vertical Divider */}
-              <Divider orientation="vertical" flexItem sx={{ my: 1, mx: 2 }} />
-
-              {/* Logout Button */}
+                </Typography>
+                <IconButton
+                  onClick={handleLogout}
+                  size="small"
+                  title="Logout"
+                  sx={{ ml: 1 }}>
+                  <LogoutOutlinedIcon fontSize="small" color="error" />
+                </IconButton>
+              </Box>
+            ) : (
               <Button
-                size="small"
-                color="error"
-                sx={{ textTransform: "none", fontWeight: "bold" }}
-                onClick={handleLogout}>
-                Logout
+                component={RouterLink}
+                to="/login"
+                startIcon={<PersonOutlineOutlinedIcon />}
+                sx={{
+                  color: "text.primary",
+                  fontWeight: 600,
+                  textTransform: "none",
+                  "&:hover": {
+                    color: "success.main",
+                    backgroundColor: "transparent",
+                  },
+                }}>
+                Login
               </Button>
-            </Box>
-          ) : (
-            <Button
-              component={RouterLink}
-              to="/login"
-              variant="contained"
-              color="success"
+            )}
+
+            {/* Shopping Cart */}
+            <IconButton
               sx={{
-                borderRadius: 5,
-                px: 3,
-                textTransform: "none",
-                fontWeight: "bold",
-                boxShadow: 0,
+                color: "text.primary",
+                "&:hover": { color: "success.main" },
               }}>
-              Login
-            </Button>
-          )}
-        </Box>
-      </Toolbar>
+              <Badge badgeContent={0} color="error">
+                <ShoppingCartOutlinedIcon />
+              </Badge>
+            </IconButton>
+          </Box>
+        </Toolbar>
+      </Container>
+
+      {/* Secondary Toolbar: Categories */}
+      <Box
+        sx={{
+          borderTop: "1px solid",
+          borderColor: "grey.100",
+          display: { xs: "none", md: "block" },
+        }}>
+        <Container maxWidth="lg">
+          <Toolbar
+            variant="dense"
+            disableGutters
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              gap: 5,
+              minHeight: 46,
+            }}>
+            {categories.map((category) => (
+              <Typography
+                key={category}
+                variant="caption"
+                onClick={() => setActiveCategory(category)}
+                sx={{
+                  fontWeight: 700,
+                  letterSpacing: "0.5px",
+                  cursor: "pointer",
+                  position: "relative",
+                  py: 1.5, // Padding top and bottom
+                  color:
+                    activeCategory === category
+                      ? "success.main"
+                      : "text.secondary",
+                  transition: "color 0.2s ease-in-out",
+                  "&:hover": { color: "success.main" },
+                  // Green line indicator
+                  "&::after": {
+                    content: '""',
+                    position: "absolute",
+                    bottom: 0, // Pins it to the bottom of the padding
+                    left: 0,
+                    height: "2px",
+                    backgroundColor: "success.main",
+                    // The line is 100% width if active, or scales up on hover
+                    width: activeCategory === category ? "100%" : "0%",
+                    transition: "width 0.3s ease-in-out",
+                  },
+                  "&:hover::after": {
+                    width: "100%", // Shows line on hover before clicking
+                  },
+                }}>
+                {category}
+              </Typography>
+            ))}
+          </Toolbar>
+        </Container>
+      </Box>
     </AppBar>
   );
 };
